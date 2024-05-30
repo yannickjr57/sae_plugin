@@ -56,8 +56,8 @@ public class CameraPreview: CAPPlugin {
         } else {
             self.height = UIScreen.main.bounds.size.height
         }
-        self.x = call.getInt("x") != nil ? CGFloat(call.getInt("x")!)/UIScreen.main.scale: 0
-        self.y = call.getInt("y") != nil ? CGFloat(call.getInt("y")!)/UIScreen.main.scale: 0
+        self.x = call.getInt("x") != nil ? CGFloat(call.getInt("x")!)/2: 0
+        self.y = call.getInt("y") != nil ? CGFloat(call.getInt("y")!)/2: 0
         if call.getInt("paddingBottom") != nil {
             self.paddingBottom = CGFloat(call.getInt("paddingBottom")!)
         }
@@ -285,6 +285,37 @@ public class CameraPreview: CAPPlugin {
 
         self.cameraController.stopRecording { (_) in
 
+        }
+    }
+    
+    @objc func getMaxZoom(_ call: CAPPluginCall) {
+        do {
+            let maxZoom = try self.cameraController.getMaxZoom()
+            call.resolve(["value": maxZoom])
+        } catch {
+            call.reject("failed to get max zoom")
+        }
+    }
+    
+    @objc func getZoom(_ call: CAPPluginCall) {
+        do {
+            let zoom = try self.cameraController.getZoom()
+            call.resolve(["value": zoom])
+        } catch {
+            call.reject("failed to get zoom")
+        }
+    }
+    
+    @objc func setZoom(_ call: CAPPluginCall) {
+        do {
+            guard let zoom = call.getFloat("zoom") else {
+                call.reject("failed to set zoom. required parameter zoom is missing")
+                return
+            }
+            try self.cameraController.setZoom(desiredZoomFactor: CGFloat(zoom))
+            call.resolve()
+        } catch {
+            call.reject("failed to set zoom")
         }
     }
 
