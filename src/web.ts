@@ -93,7 +93,55 @@ export class CameraPreviewWeb extends WebPlugin implements CameraPreviewPlugin {
           );
         }
       } else {
-        reject({ message: 'camera already started' });
+        videoElement.id = 'video';
+        videoElement.setAttribute('class', options.className || '');
+
+        // Don't flip video feed if camera is rear facing
+        if (options.position !== 'rear') {
+          videoElement.setAttribute('style', '-webkit-transform: scaleX(-1); transform: scaleX(-1);');
+        }
+
+        const userAgent = navigator.userAgent.toLowerCase();
+        const isSafari = userAgent.includes('safari') && !userAgent.includes('chrome');
+
+        // Safari on iOS needs to have the autoplay, muted and playsinline attributes set for video.play() to be successful
+        // Without these attributes videoElement.play() will throw a NotAllowedError
+        // https://developer.apple.com/documentation/webkit/delivering_video_content_for_safari
+        if (isSafari) {
+          videoElement.setAttribute('autoplay', 'true');
+          videoElement.setAttribute('muted', 'true');
+          videoElement.setAttribute('playsinline', 'true');
+        }
+
+        parent.appendChild(videoElement);
+
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          const constraints: MediaStreamConstraints = {
+            video: {
+              width: { ideal: options.width },
+              height: { ideal: options.height },
+            },
+          };
+
+          if (options.position === 'rear') {
+            (constraints.video as MediaTrackConstraints).facingMode = 'environment';
+            this.isBackCamera = true;
+          } else {
+            this.isBackCamera = false;
+          }
+
+          navigator.mediaDevices.getUserMedia(constraints).then(
+            function (stream) {
+              //video.src = window.URL.createObjectURL(stream);
+              videoElement.srcObject = stream;
+              videoElement.play();
+              resolve({});
+            },
+            (err) => {
+              reject(err);
+            }
+          );
+        }
       }
     });
   }
