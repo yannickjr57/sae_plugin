@@ -346,50 +346,49 @@ public class CameraPreview extends Plugin implements CameraActivity.CameraPrevie
 
                         FrameLayout containerView = getBridge().getActivity().findViewById(containerViewId);
                         if (containerView == null) {
-                          // Créer une nouvelle FrameLayout si containerView n'existe pas encore
+                            // Si le conteneur n'existe pas, créez-en un nouveau
                             containerView = new FrameLayout(getActivity().getApplicationContext());
                             containerView.setId(containerViewId);
-                            
+
+                            // Rendre l'arrière-plan de la WebView transparent
                             getBridge().getWebView().setBackgroundColor(Color.TRANSPARENT);
                             ((ViewGroup) getBridge().getWebView().getParent()).addView(containerView);
 
                             if (toBack) {
+                                // Si toBack est vrai, amener la WebView au premier plan
                                 getBridge().getWebView().getParent().bringChildToFront(getBridge().getWebView());
                                 setupBroadcast();
                             }
 
+                            // Ajouter le fragment de caméra dans le conteneur
                             FragmentManager fragmentManager = getBridge().getActivity().getFragmentManager();
                             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                             fragmentTransaction.add(containerView.getId(), fragment);
                             fragmentTransaction.commit();
-                            }
-                             else{
-                                // containerView existe déjà, donc nous allons utiliser celui-ci
-                                System.out.println("Utilisation de containerView existant");
-                                getBridge().getWebView().setBackgroundColor(Color.TRANSPARENT);
-                                ((ViewGroup) getBridge().getWebView().getParent()).addView(containerView);
 
-                                if (toBack) {
-                                    getBridge().getWebView().getParent().bringChildToFront(getBridge().getWebView());
-                                    setupBroadcast();
-                                }
+                            // Sauvegarder l'appel et définir l'ID de rappel
+                            bridge.saveCall(call);
+                            cameraStartCallbackId = call.getCallbackId();
 
-                                FragmentManager fragmentManager = getBridge().getActivity().getFragmentManager();
+                        } else {
+                            // Si le conteneur existe déjà, vérifier si le fragment de caméra y est déjà ajouté
+                            FragmentManager fragmentManager = getBridge().getActivity().getFragmentManager();
+                            Fragment existingFragment = fragmentManager.findFragmentById(containerViewId);
+
+                            if (existingFragment == null) {
+                                // Ajouter le fragment de caméra si ce n'est pas déjà fait
                                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                                fragmentTransaction.replace(containerView.getId(), fragment); // Utiliser replace si nécessaire
+                                fragmentTransaction.add(containerView.getId(), fragment);
                                 fragmentTransaction.commit();
-                             }
 
-                                // NOTE: we don't return invoke call.resolve here because it must be invoked in onCameraStarted
-                                // otherwise the plugin start method might resolve/return before the camera is actually set in CameraActivity
-                                // onResume method (see this line mCamera = Camera.open(defaultCameraId);) and the next subsequent plugin
-                                // method invocations (for example, getSupportedFlashModes) might fails with "Camera is not running" error
-                                // because camera is not available yet and hasCamera method will return false
-                                // Please also see https://developer.android.com/reference/android/hardware/Camera.html#open%28int%29
+                                // Sauvegarder l'appel et définir l'ID de rappel
                                 bridge.saveCall(call);
                                 cameraStartCallbackId = call.getCallbackId();
-                            
-                       
+                            } else {
+                                // Si le fragment de caméra est déjà présent, rejeter l'appel pour éviter le redémarrage de la caméra
+                                call.reject("camera already started");
+                            }
+                        }
                     }
                 }
             );
