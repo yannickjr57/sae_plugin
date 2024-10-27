@@ -370,7 +370,7 @@ public class CameraPreview extends Plugin implements CameraActivity.CameraPrevie
                             bridge.saveCall(call);
                             cameraStartCallbackId = call.getCallbackId();
                         }else if (containerView != null) {
-                            sys.log("containerView != null");
+                            System.out.println("container view not null");
                             containerView.setId(containerViewId); getBridge().getWebView().setBackgroundColor(Color.TRANSPARENT);
                             ((ViewGroup) getBridge().getWebView().getParent()).addView(containerView);
                             if (toBack == true) {
