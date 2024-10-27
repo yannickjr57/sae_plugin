@@ -2,6 +2,8 @@ package com.ahm.capacitor.camera.preview;
 
 import static android.Manifest.permission.CAMERA;
 
+import android.webkit.WebView;
+
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
