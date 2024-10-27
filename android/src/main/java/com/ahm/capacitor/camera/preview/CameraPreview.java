@@ -369,8 +369,23 @@ public class CameraPreview extends Plugin implements CameraActivity.CameraPrevie
                             // Please also see https://developer.android.com/reference/android/hardware/Camera.html#open%28int%29
                             bridge.saveCall(call);
                             cameraStartCallbackId = call.getCallbackId();
-                        } else {
-                            call.reject("camera already started");
+                        }else if (containerView != null) {
+                            sys.log("containerView != null");
+                            containerView.setId(containerViewId); getBridge().getWebView().setBackgroundColor(Color.TRANSPARENT);
+                            ((ViewGroup) getBridge().getWebView().getParent()).addView(containerView);
+                            if (toBack == true) {
+                                getBridge().getWebView().getParent().bringChildToFront(getBridge().getWebView());
+                                setupBroadcast();
+                            }
+
+                            FragmentManager fragmentManager = getBridge().getActivity().getFragmentManager();
+                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                            fragmentTransaction.add(containerView.getId(), fragment);
+                            fragmentTransaction.commit();
+                        }
+                        
+                        else {
+                            call.reject("camera already starteddd");
                         }
                     }
                 }
