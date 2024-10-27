@@ -347,41 +347,42 @@ public class CameraPreview extends Plugin implements CameraActivity.CameraPrevie
                         FrameLayout containerView = getBridge().getActivity().findViewById(containerViewId);
                         if (containerView == null) {
                             // Vérifiez si la balise vidéo existe déjà
-                        ViewGroup webViewParent = (ViewGroup) getBridge().getWebView().getParent();
-                        View existingVideoView = webViewParent.findViewById(videoViewId); // Assurez-vous que videoViewId est défini
+                             ViewGroup webViewParent = (ViewGroup) getBridge().getWebView().getParent();
+                            View existingVideoView = webViewParent.findViewById(videoViewId); // Assurez-vous que videoViewId est défini
                     
-                        if (existingVideoView != null) {
-                            // La balise vidéo existe déjà, utilisez-la
-                            System.out.println("Utilisation de la balise vidéo existante");
-                            // Vous pouvez éventuellement configurer la balise vidéo ici si nécessaire
-                            containerView = existingVideoView; // Utiliser l'existant
-                        } else {
-                            // Créer une nouvelle vue si la balise vidéo n'existe pas
-                            containerView = new FrameLayout(getActivity().getApplicationContext());
-                            containerView.setId(containerViewId);
-                            
-                            getBridge().getWebView().setBackgroundColor(Color.TRANSPARENT);
-                            webViewParent.addView(containerView);
-                    
+                            if (existingVideoView != null) {
+                                // La balise vidéo existe déjà, utilisez-la
+                                System.out.println("Utilisation de la balise vidéo existante");
+                                // Vous pouvez éventuellement configurer la balise vidéo ici si nécessaire
+                                containerView = existingVideoView; // Utiliser l'existant
+                            } else {
+                                // Créer une nouvelle vue si la balise vidéo n'existe pas
+                                containerView = new FrameLayout(getActivity().getApplicationContext());
+                                containerView.setId(containerViewId);
+                                
+                                getBridge().getWebView().setBackgroundColor(Color.TRANSPARENT);
+                                webViewParent.addView(containerView);
+                        
                             if (toBack == true) {
-                                getBridge().getWebView().getParent().bringChildToFront(getBridge().getWebView());
-                                setupBroadcast();
+                                    getBridge().getWebView().getParent().bringChildToFront(getBridge().getWebView());
+                                    setupBroadcast();
                             }
-                    
-                            FragmentManager fragmentManager = getBridge().getActivity().getFragmentManager();
-                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                            fragmentTransaction.add(containerView.getId(), fragment);
-                            fragmentTransaction.commit();
+                        
+                                FragmentManager fragmentManager = getBridge().getActivity().getFragmentManager();
+                                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                                fragmentTransaction.add(containerView.getId(), fragment);
+                                fragmentTransaction.commit();
 
 
-                            // NOTE: we don't return invoke call.resolve here because it must be invoked in onCameraStarted
-                            // otherwise the plugin start method might resolve/return before the camera is actually set in CameraActivity
-                            // onResume method (see this line mCamera = Camera.open(defaultCameraId);) and the next subsequent plugin
-                            // method invocations (for example, getSupportedFlashModes) might fails with "Camera is not running" error
-                            // because camera is not available yet and hasCamera method will return false
-                            // Please also see https://developer.android.com/reference/android/hardware/Camera.html#open%28int%29
-                            bridge.saveCall(call);
-                            cameraStartCallbackId = call.getCallbackId();
+                                // NOTE: we don't return invoke call.resolve here because it must be invoked in onCameraStarted
+                                // otherwise the plugin start method might resolve/return before the camera is actually set in CameraActivity
+                                // onResume method (see this line mCamera = Camera.open(defaultCameraId);) and the next subsequent plugin
+                                // method invocations (for example, getSupportedFlashModes) might fails with "Camera is not running" error
+                                // because camera is not available yet and hasCamera method will return false
+                                // Please also see https://developer.android.com/reference/android/hardware/Camera.html#open%28int%29
+                                bridge.saveCall(call);
+                                cameraStartCallbackId = call.getCallbackId();
+                            }
                         }
                         else {
                             call.reject("camera already starteddd");
