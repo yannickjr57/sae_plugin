@@ -362,34 +362,24 @@ public class CameraPreview extends Plugin implements CameraActivity.CameraPrevie
                             }
 
                             // Ajouter le fragment de caméra dans le conteneur
-                            FragmentManager fragmentManager = getBridge().getActivity().getFragmentManager();
-                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                            fragmentTransaction.add(containerView.getId(), fragment);
-                            fragmentTransaction.commit();
+                            // FragmentManager fragmentManager = getBridge().getActivity().getFragmentManager();
+                            // FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                            // fragmentTransaction.add(containerView.getId(), fragment);
+                            // fragmentTransaction.commit();
+
+                            WebView webView = getBridge().getWebView();
+                            webView.evaluateJavascript("document.getElementById('cameraPreview').srcObject = videoStream;", null);
 
                             // Sauvegarder l'appel et définir l'ID de rappel
                             bridge.saveCall(call);
                             cameraStartCallbackId = call.getCallbackId();
 
-                        } else {
-                            // Si le conteneur existe déjà, vérifier si le fragment de caméra y est déjà ajouté
-                            FragmentManager fragmentManager = getBridge().getActivity().getFragmentManager();
-                            Fragment existingFragment = fragmentManager.findFragmentById(containerViewId);
-
-                            if (existingFragment == null) {
-                                // Ajouter le fragment de caméra si ce n'est pas déjà fait
-                                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                                fragmentTransaction.add(containerView.getId(), fragment);
-                                fragmentTransaction.commit();
-
-                                // Sauvegarder l'appel et définir l'ID de rappel
-                                bridge.saveCall(call);
-                                cameraStartCallbackId = call.getCallbackId();
-                            } else {
+                        } 
+                            else {
                                 // Si le fragment de caméra est déjà présent, rejeter l'appel pour éviter le redémarrage de la caméra
                                 call.reject("camera already started");
-                            }
-                        }
+                         }
+                        
                     }
                 }
             );
