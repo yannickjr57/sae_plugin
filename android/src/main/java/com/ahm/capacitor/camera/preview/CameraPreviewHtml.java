@@ -27,7 +27,7 @@ import java.io.IOException;
 import org.java_websocket.server.WebSocketServer;
 
 @CapacitorPlugin(name = "CameraPreviewHtml", permissions = { @Permission(strings = { CAMERA }, alias = CameraPreview.CAMERA_PERMISSION_ALIAS) })
-public class CameraPreviewHtml extends CameraPreview {
+public class CameraPreviewHtml extends Plugin
     private WebView webView;
     private WebSocketServer webSocketServer;
     private Camera camera;
